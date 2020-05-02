@@ -1,0 +1,25 @@
+<?xml version = "1.0" encoding="UTF-8"?>
+<launch>
+	<!--	Load	the	foxbot	URDF	model	into	the	parameter	server	-->
+	<param	name="robot_description"	textfile="$(find	foxbot)/foxbot.urdf"	/>
+
+	
+
+	<!--	Spawn	a	foxbot	in	Gazebo,	taking	the	description	from	the
+							parameter	server	-->
+	<node	name="spawn_urdf"	pkg="gazebo_ros"	type="spawn_model"
+		args="-param robot_description	-urdf	-model	foxbot"	/>
+
+	<!-- Load joint controller configurations from YAML file to parameter server -->
+	<rosparam file="$(find foxbot)/foxbot_control.yaml" command="load"/>
+
+	  <!-- load the controllers -->
+	<node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="true"
+	    output="screen" ns="/foxbot" args="right_wheel_controller left_wheel_controller joint_state_controller"/>
+
+	  <!-- convert joint states to TF transforms for rviz, etc -->
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+	    respawn="false" output="screen">
+	<remap from="/joint_states" to="/foxbot/joint_states" />
+	</node>
+</launch>
