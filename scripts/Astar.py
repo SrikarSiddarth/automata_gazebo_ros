@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import cv2
 import numpy as np
 import heapq
@@ -154,6 +155,7 @@ def play(img, start_coords, end_coords):
 	
 	
 	_, roi = cv2.threshold(img, 200, 255, cv2.THRESH_BINARY)
+	
 	imrows, imcols = roi.shape
 	rw = float(imrows)/(2*rows)							#half of row width
 	cw = float(imcols)/(2*columns)							#half of column width

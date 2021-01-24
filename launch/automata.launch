@@ -1,0 +1,24 @@
+<?xml version = "1.0" encoding="UTF-8"?>
+
+<launch>
+	<arg name="debug" default="false"/>
+	<arg name="paused" default="false"/>
+	<arg name="gui" default="true"/>
+	<arg name="verbose" default="false"/>
+	<arg name="world" default="$(find automata)/worlds/automata.world" />
+
+
+	<!-- include gazebo launcher -->
+	<include file="$(find gazebo_ros)/launch/empty_world.launch" >
+		
+		<arg name="world_name" value="$(arg world)"/>
+		<arg name="debug" value="$(arg debug)"/>
+		<arg name="gui" value="$(arg gui)"/>
+		<arg name="verbose" value="$(arg verbose)"/>
+		<arg name="paused" value="$(arg paused)"/>
+	</include>
+	<node name="applyAstar" type="applyAstar.py" pkg="automata" output="screen"/>
+	<node pkg="timed_roslaunch" type="timed_roslaunch.sh" args="5 foxbot spawn_foxbot.launch" name="timed_roslaunch" output="screen" />
+	<node pkg="automata" type="tracer.py" name="tracer" output="screen"/>
+	<node pkg="automata" type="movement.py" name="movement" output="screen"/>
+</launch>

@@ -51,16 +51,18 @@ class move():
 				if self.i_angle>2:
 					self.i_angle = 2
 				if self.action == 1:
-					print("forward")
+					# print("forward")
 					self.leftWheel.publish(self.i_pos)
 					self.rightWheel.publish(self.i_pos)
 				elif self.action == 2:
-					print("left")
+					# print("left")
+					# self.leftWheel.publish(0)
+					self.rightWheel.publish(0)
 					self.leftWheel.publish(self.i_angle)
-					self.rightWheel.publish(-self.i_angle)
 				elif self.action == 3:
-					print("right")
-					self.leftWheel.publish(-self.i_angle)
+					# print("right")
+					self.leftWheel.publish(0)
+					# self.rightWheel.publish(0)
 					self.rightWheel.publish(self.i_angle)
 				else:
 					print("stop")
@@ -68,7 +70,7 @@ class move():
 					self.rightWheel.publish(0)
 
 				
-				print('command : '+str(self.i_angle)+' timeChange : '+str(self.timeChange)+' deltaTheta : '+str(self.angle_error-self.old_angle_error))
+				# print('command : '+str(self.i_angle)+' timeChange : '+str(self.timeChange)+' deltaTheta : '+str(self.angle_error-self.old_angle_error))
 		
 
 if __name__ == '__main__':

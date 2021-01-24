@@ -54,7 +54,7 @@
 						<alwaysOn>true</alwaysOn>
 						<updateRate>0</updateRate>
 						<cameraName>gazebo/overhead_cam</cameraName>
-						<imageTopicName>image_rect_color</imageTopicName>
+						<imageTopicName>image</imageTopicName>
 						<cameraInfoTopicName>camera_info</cameraInfoTopicName>
 						<frameName>overhead_cam_frame</frameName>
 					</plugin>

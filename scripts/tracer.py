@@ -18,9 +18,10 @@ class tracer():
 		self.position = Point32()
 		self.pos_pub = rospy.Publisher("/position_info",Point32,queue_size=10)
 		self.angle_pub = rospy.Publisher("/direction_info",Float32,queue_size=10)
-		self.image_sub = rospy.Subscriber("/gazebo/overhead_cam/image_rect_color",Image,self.image_callback)
+		self.image_sub = rospy.Subscriber("/gazebo/overhead_cam/image",Image,self.image_callback)
 		self.res=None
-		self.finalArray = None
+		self.blue_detected = False
+		self.red_detected = False
 
 	def image_callback(self, data):
 		try:
@@ -64,17 +65,18 @@ class tracer():
 				# cv.waitKey(0)
 				if cv.contourArea(cntBlue[i])>400:
 					Mb = cv.moments(cntBlue[i])
+					self.blue_detected = True
 				
 				# im = np.copy(hsv)
 
 
 
 
-					#after experimentation the second contour is the right contour
+			#after experimentation the second contour is the right contour
 
-			#print(Mb)
-			xb = (Mb['m10']/Mb['m00'])
-			yb = (Mb['m01']/Mb['m00'])
+			if self.blue_detected:
+				xb = (Mb['m10']/Mb['m00'])
+				yb = (Mb['m01']/Mb['m00'])
 
 
 
@@ -99,30 +101,32 @@ class tracer():
 				# cv.waitKey(0)
 				if cv.contourArea(cntRed[i])>150:
 					Mr = cv.moments(cntRed[i])
+					self.red_detected = True
 			
+			if self.red_detected:
+				xr = (Mr['m10']/Mr['m00'])
+				yr = (Mr['m01']/Mr['m00'])
 
-			xr = (Mr['m10']/Mr['m00'])
-			yr = (Mr['m01']/Mr['m00'])
+			if self.blue_detected and self.red_detected:
+				self.angle = np.arctan2((yb-yr),(xr-xb))
+					
+				# cv.circle(self.res,(int(xr) , int(yr)), 3, (0,0,0), -1)
+				# cv.circle(self.res,(int(xb) , int(yb)), 3, (0,0,0), -1)
+				self.position.x, self.position.y = ( int((xr+xb)*0.5) , int((yr+yb)*0.5) )
+				self.res = cv.putText(self.res, str((self.position.x, self.position.y)), (self.position.x, self.position.y), cv.FONT_HERSHEY_SIMPLEX , 0.4, (255,100,100), 1, cv.LINE_AA) 
+				cv.imshow('g', self.res)
+				cv.waitKey(33)
 
-			self.angle = np.arctan2((yr-yb),(xr-xb))*(180/np.pi)
-				
-			# cv.circle(self.res,(int(xr) , int(yr)), 3, (0,0,0), -1)
-			# cv.circle(self.res,(int(xb) , int(yb)), 3, (0,0,0), -1)
-			self.position.x, self.position.y = ( int((xr+xb)*0.5) , int((yr+yb)*0.5) )
-			self.res = cv.putText(self.res, str((self.position.x, self.position.y)), (self.position.x, self.position.y), cv.FONT_HERSHEY_SIMPLEX , 0.4, (255,100,100), 1, cv.LINE_AA) 
-			cv.imshow('g', self.res)
-			cv.waitKey(33)
-
-			# print('XR-XB : ' + str(xr-xb))
-			# print('YR-YB : ' + str(yr-yb))
+				# print('XR-XB : ' + str(xr-xb))
+				# print('YR-YB : ' + str(yr-yb))
 
 
-			# print('angle : ' + str(self.angle))
-			# print('taninv : ' + str((np.arctan((yr-yb)/(xr-xb)))/np.pi*180))
+				# print('angle : ' + str(self.angle))
+				# print('taninv : ' + str((np.arctan((yr-yb)/(xr-xb)))/np.pi*180))
 
-			# print('location : ' + str(self.position))
-			self.pos_pub.publish(self.position)
-			self.angle_pub.publish(self.angle)
+				# print('location : ' + str(self.position))
+				self.pos_pub.publish(self.position)
+				self.angle_pub.publish(self.angle)
 
 if __name__ == '__main__':
 	t = tracer()
